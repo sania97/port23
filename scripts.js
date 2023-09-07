@@ -1,16 +1,109 @@
-$(document).ready(function() {
-  // Hide the second navigation bar initially
-  $('.double-layered-text').each(function() {
+$(document).ready(function () {
+  // Critical
+
+  $('.double-layered-text').each(function () {
     var text = $(this).text();
     $(this).attr('data-text', text);
+    //var parentdiv = $(this).closest(".intromessage");
+    $('.intromessage').addClass('loaded');
+    $('.circles').addClass('loaded');
   });
+  $('.nav__group a').on('click', function (event) {
+    event.preventDefault(); // Prevent default behavior
+    const targetId = $(this).attr('href'); // Get the href attribute
+    const targetElement = $(targetId); // Find the corresponding element by id
+    if (targetElement.length) {
+      $('html, body').animate({
+        scrollTop: targetElement.offset().top
+      }, 1000); // Smoothly scroll to the element
+    }
+  });
+  $('#selected').on('click', function (event) {
+    event.preventDefault(); // Prevent default behavior
+    const targetId = $(this).attr('href'); // Get the href attribute
+    const targetElement = $(targetId); // Find the corresponding element by id
+    if (targetElement.length) {
+      $('html, body').animate({
+        scrollTop: targetElement.offset().top
+      }, 1000); // Smoothly scroll to the element
+    }
+  });
+  function setIntroMaxHeight() {
+    const herocontHeight = $('.herocont').outerHeight(); // Get the height of .herocont
 
-  // Scroll-based class addition and navigation bar switching
-  $(document).scroll(function() {
-    var y = $(this).scrollTop();
+    if (herocontHeight > 400) {
+      const minHeight = herocontHeight + 400; // Calculate max height
+
+      $('.sectionn.intro').css('min-height', minHeight + 'px'); // Set max height of .sectionn.intro
+    } else {
+      // Remove the min-height property if it's less than or equal to 400
+      $('.sectionn.intro').css('min-height', '');
+    }
+  }
+
+  setIntroMaxHeight();
+  //not as critical
+  function checkScrollClasses() {
+
+    var $window = $(window),
+      $body = $('body');
+    var y = $window.scrollTop();
+
+
+    var offset = $window.height() / 2;
+    var $sections = $('[data-color]'); // Select all sections with data-color attribute
+    $sections.each(function () {
+      var $this = $(this);
+      var sectionTop = $this.offset().top - offset;
+      var sectionBottom = sectionTop + $this.outerHeight();
+
+      var sectionColor = $this.data('color');
+
+      // Check if the section is on screen
+      if (y >= sectionTop && y <= sectionBottom) {
+        $body.removeClass(function (index, classNames) {
+          // Remove any existing color classes from the body
+          return (classNames.match(/color-\S+/g) || []).join(' ');
+        });
+        $body.addClass('color-' + sectionColor);
+        return false; // Exit the loop once a matching section is found
+      }
+    });
+
+
+    // Add lightup and brighten classes for .profImgcont element
+    var profImgcont = $(".profImgcont");
+    var aboutmeElement = profImgcont.closest(".aboutme");
+    var aboutmePts = $(".features-list li");
+
+    var x = aboutmeElement.offset().top - 600;
+
+    if (y > x) {
+      profImgcont.addClass("lightup");
+      aboutmeElement.addClass("brighten");
+      //aboutmePts.addClass("float");
+      function addFloatClass(index) {
+        if (index < aboutmePts.length) {
+          aboutmePts.eq(index).addClass("float");
+          setTimeout(function () {
+            addFloatClass(index + 1);
+          }, 400); // 2000 milliseconds (2 seconds) delay
+        }
+      }
+
+      // Start adding the 'float' class with the first li
+      addFloatClass(0);
+
+
+    } else {
+      profImgcont.removeClass("lightup");
+      aboutmeElement.removeClass("brighten");
+      //aboutmePts.removeClass("float");
+
+    }
 
     // Scroll-based class addition for .buttontocasestudy elements
-    $(".buttontocasestudy").each(function() {
+    $(".buttontocasestudy").each(function () {
       var parentElement = $(this).closest(".card-containerr");
       var cardElement = $(this).closest(".carddContent");
       var t = parentElement.offset().top - 600;
@@ -24,46 +117,22 @@ $(document).ready(function() {
       }
     });
 
-    // Adding lightup and brighten classes for .profImgcont element
-    var profImgcont = $(".profImgcont");
-    var aboutmeElement = profImgcont.closest(".aboutme");
-    var x = profImgcont.offset().top - $(window).height() + 200;
-
-    if (y > x) {
-      profImgcont.addClass("lightup");
-      aboutmeElement.addClass("brighten");
-    } else {
-      profImgcont.removeClass("lightup");
-      aboutmeElement.removeClass("brighten");
-    }
-
-    // Toggle navigation bars based on scroll position
-
-    // Adding double layered text effect
-    // selectors
-    var $window = $(window),
-      $body = $('body'),
-      $section = $('.sectionn');
-
     // Change 33% earlier than scroll position so colour is there when you arrive.
-    var scroll = y + ($window.height() / 3);
+    //var scroll = y + ($window.height() / 3);
 
-    $section.each(function () {
-      var $this = $(this);
 
-      // if position is within range of this panel.
-      // So position of (position of top of div <= scroll position) && (position of bottom of div > scroll position).
-      // Remember we set the scroll to 33% earlier in scroll var.
-      if ($this.position().top <= scroll && $this.position().top + $this.height() > scroll) {
-            
-        // Remove all classes on body with color-
-        $body.removeClass(function (index, css) {
-          return (css.match (/(^|\s)color-\S+/g) || []).join(' ');
-        });
-       
-        // Add class of currently active div
-        $body.addClass('color-' + $(this).data('color'));
-      }
-    });
-  });    
+
+
+  }
+
+  checkScrollClasses();
+  $(window).resize(setIntroMaxHeight);
+  $(document).scroll(function () {
+    checkScrollClasses();
+
+
+
+
+  });
+
 });
